@@ -4,10 +4,10 @@ from graph.algorithms import dijkstra
 
 def main():
     print("Carregando dados...")
-    df = load_cross_references('data/cross_references.txt')
-
+    graph_data = load_cross_references('data/cross_references.txt')
+  
     print("Construindo grafo...")
-    G = build_graph(df)
+    G = build_graph(graph_data)
 
     print(f"Vértices: {G.number_of_nodes()}")
     print(f"Arestas:  {G.number_of_edges()}")

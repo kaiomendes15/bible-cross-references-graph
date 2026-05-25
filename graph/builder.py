@@ -1,10 +1,11 @@
-# receber os dados do dataframe e construir um grafo direcionado
 import networkx as nx
-import pandas as pd
 
-def build_graph(df: pd.DataFrame) -> nx.DiGraph:
+
+def build_graph(graph_data: dict[str, list[str]]) -> nx.DiGraph:
     G = nx.DiGraph()
-    G.add_weighted_edges_from(
-        zip(df['from_verse'], df['to_verse'], df['votes'])
-    )
+
+    for from_verse, to_verses in graph_data.items():
+        for to_verse in to_verses:
+            G.add_edge(from_verse, to_verse)
+    
     return G
