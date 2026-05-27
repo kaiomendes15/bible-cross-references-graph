@@ -5,7 +5,7 @@ import pandas as pd
 from utils.verse_utils import expand_verse
 
 
-def load_cross_references(filepath: str) -> dict[str, list[str]]:
+def load_cross_references(filepath: str) -> dict[str, list[tuple[str, int]]]:
     df = pd.read_csv(
         filepath,
         sep='\t',
@@ -24,6 +24,6 @@ def load_cross_references(filepath: str) -> dict[str, list[str]]:
         from_verse = row['from_verse']
         to_verse = row['to_verse']
 
-        graph[from_verse].append(to_verse)
+        graph[from_verse].append((to_verse, int(row['votes'])))
 
     return dict(graph)
