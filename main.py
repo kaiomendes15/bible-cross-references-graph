@@ -4,6 +4,7 @@ from graph.loader import load_cross_references
 from graph.builder import build_graph
 from graph.community import detect_communities, community_summary
 from graph.metrics import compute_pagerank, top_in_degree, top_weighted_in_degree, top_pagerank, compute_betweenness
+from analysis.queries import shortest_path
 from collections import defaultdict
 
 
@@ -60,6 +61,17 @@ def main():
     print('\n Top 10 Betweenness Centrality:')
     for verse, score in top_betweenness:
        print(f"{verse}: {score:.8f}")
+
+    print("\nCalculando caminho mais curto (Dijkstra)...")
+    source, target = "Gen.1.1", "John.1.1"
+    try:
+        result = shortest_path(graph_data, source, target)
+        print(f"Caminho de {source} para {target}:")
+        print(" -> ".join(result["path"]))
+        print(f"Custo total: {result['cost']:.6f}")
+        print(f"Saltos: {result['hops']}")
+    except ValueError as e:
+        print(e)
 
 
 if __name__ == '__main__':
