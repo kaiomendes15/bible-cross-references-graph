@@ -1,4 +1,5 @@
-from collections import defaultdict
+import random 
+from collections import defaultdict, deque
 
 """
     **In-degree** answers: *which verses are referenced by the most other verses?* This is the simplest measure of structural importance.
@@ -63,3 +64,53 @@ def compute_pagerank(graph: dict,
 def top_pagerank(graph: dict, n: int, **kwargs) -> list[tuple[str, float]]:
     scores = compute_pagerank(graph, **kwargs)
     return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:n]
+
+
+def compute_betweenness(graph: dict, n: int, k:int = 200) -> list[tuple[str,float]]:
+    all_nodes = set(graph.keys())
+    for neighbors in graph.values():
+        for to_verse, _ in neighbors:
+            all_nodes.add(to_verse)
+
+    all_nodes = list(all_nodes)
+    N = len(all_nodes)
+    betweenness = defaultdict(float)
+
+    random.seed(42)
+    sources = random.sample(all_nodes, min(k, N))
+
+    for s in sources:
+        pred = defaultdict(list)
+        sigma = defaultdict(int)
+        sigma[s] = 1
+        dist = defaultdict(lambda: -1)
+        dist[s] = 0
+
+        queue = deque([s])
+        order = []
+
+        while queue:
+            v = queue.popleft()
+            order.append(v)
+            for neighbor, _ in graph.get(v, []):
+                if dist[neighbor] == -1:
+                    dist[neighbor] = dist[v] + 1
+                    queue.append(neighbor)
+                if dist[neighbor] == dist[v] + 1:
+                    sigma[neighbor] += sigma[v]
+                    pred[neighbor].append(v)
+        
+        delta = defaultdict(float)
+        for v in reversed(order):
+            for u in pred[v]:
+                delta[u] += (sigma[u] / sigma[v]) * (1 + delta[v])
+            if v != s:
+                betweenness[v] += delta[v]
+        
+    scale = N / k
+    norm = 1 / ((N - 1) * (N - 2)) if N > 2 else 1.0
+        
+    for v in betweenness:
+        betweenness[v] *= scale * norm
+
+    return sorted(betweenness.items(), key=lambda x: x[1], reverse=True) [:n]
