@@ -28,3 +28,38 @@ def top_weighted_in_degree(graph: dict, n: int) -> list[tuple[str, float]]:
             weighted_in_degree[to_verse] += weight
 
     return sorted(weighted_in_degree.items(), key=lambda x: x[1], reverse=True)[:n]
+def compute_pagerank(graph: dict,
+                     damping: float = 0.85,
+                     max_iter: int = 100,
+                     tol: float = 1e-6
+                     ) -> dict[str, float]:
+    all_nodes = set(graph.keys())
+    for neighbors in graph.values():
+        for to_verse, _ in neighbors:
+            all_nodes.add(to_verse)
+
+    N = len(all_nodes)
+    score = {node: 1 / N for node in all_nodes}
+    out_weight = {node: sum(w for _, w in graph.get(node, [])) for node in all_nodes}
+    dangling_nodes = {node for node in all_nodes if not graph.get(node)}
+
+    for _ in range(max_iter):
+        dangling_sum = sum(score[node] for node in dangling_nodes)
+        new_score = {node: (1 - damping) / N + damping * dangling_sum / N for node in all_nodes}
+
+        for u in graph:
+            if out_weight[u] == 0:
+                continue
+            for v, votes in graph[u]:
+                new_score[v] += damping * score[u] * votes / out_weight[u]
+
+        if max(abs(new_score[v] - score[v]) for v in all_nodes) < tol:
+            break
+        score = new_score
+
+    return score
+
+
+def top_pagerank(graph: dict, n: int, **kwargs) -> list[tuple[str, float]]:
+    scores = compute_pagerank(graph, **kwargs)
+    return sorted(scores.items(), key=lambda x: x[1], reverse=True)[:n]

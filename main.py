@@ -3,6 +3,7 @@ from numpy import partition
 from graph.loader import load_cross_references
 from graph.builder import build_graph
 from graph.community import detect_communities, community_summary
+from graph.metrics import compute_pagerank, top_in_degree, top_weighted_in_degree, top_pagerank
 from collections import defaultdict
 
 
@@ -36,6 +37,25 @@ def main():
     print(f"Versículos com comunidade: {len(partition)}")
     print(f"Comunidades detectadas: {len(summary)}")
     print(dict(sorted(summary.items())[:10]))
+
+    print("Calculando métricas...")
+    top_in = top_in_degree(graph_data, 10)
+    top_weighted_in = top_weighted_in_degree(graph_data, 10)
+    pagerank_scores = compute_pagerank(graph_data)
+
+    print("Top 10 In-Degree:")
+    for verse, degree in top_in:
+        print(f"{verse}: {degree}")
+
+    print("\nTop 10 Weighted In-Degree:")
+    for verse, degree in top_weighted_in:
+        print(f"{verse}: {degree:.2f}")
+
+    print("\nTop 10 PageRank:")
+    for verse, score in sorted(pagerank_scores.items(), key=lambda x: x[1], reverse=True)[:10]:
+        print(f"{verse}: {score:.6f}")
+
+
 
 
 if __name__ == '__main__':
