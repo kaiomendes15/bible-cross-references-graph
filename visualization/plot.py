@@ -3,7 +3,7 @@ import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import matplotlib.colors as mcolors
 import networkx as nx
-from math import sqrt
+from math import cos, pi, sin, sqrt
 
 HIGH_CONTRAST_COLORS = [
     "#4E79A7",  # blue
@@ -47,17 +47,17 @@ def plot_ego_graph(
     output_path: str,
 ) -> None:
     G = subdict_to_digraph(subgraph)
-    pos = nx.spring_layout(G, seed=42, k=_repulsion_k(G, multiplier=2.0), iterations=100)
+    pos = _ego_radial_layout(G, partition)
     node_list, colors = _node_colors(G, partition)
 
-    plt.figure(figsize=(12, 8))
+    plt.figure(figsize=(18, 12))
     nx.draw_networkx(
         G,
         pos,
         nodelist=node_list,
         node_color=colors,
-        node_size=450,
-        font_size=8,
+        node_size=300,
+        font_size=6,
         arrows=True,
         arrowsize=12,
         edge_color="#999999",
@@ -88,18 +88,24 @@ def plot_overview(
         subgraph[from_verse] = edges
 
     G = subdict_to_digraph(subgraph)
-    pos = nx.spring_layout(G, seed=42, k=_repulsion_k(G, multiplier=2.8), iterations=150)
+    pos = nx.spring_layout(
+        G,
+        seed=42,
+        k=_repulsion_k(G, multiplier=6.0),
+        iterations=300,
+        weight=None,
+    )
 
     node_list, colors = _node_colors(G, partition)
 
-    plt.figure(figsize=(14, 10))
+    plt.figure(figsize=(18, 12))
     nx.draw_networkx(
         G,
         pos,
         nodelist=node_list,
         node_color=colors,
-        node_size=220,
-        font_size=6,
+        node_size=190,
+        font_size=5,
         arrows=True,
         arrowsize=8,
         edge_color="#BBBBBB",
@@ -150,3 +156,28 @@ def _community_colormap(partition: dict[str, int]):
 def _repulsion_k(G: nx.DiGraph, multiplier: float) -> float:
     node_count = max(G.number_of_nodes(), 1)
     return multiplier / sqrt(node_count)
+
+
+def _ego_radial_layout(
+    G: nx.DiGraph,
+    partition: dict[str, int],
+) -> dict[str, tuple[float, float]]:
+    if G.number_of_nodes() == 0:
+        return {}
+
+    center = max(G.nodes(), key=lambda node: G.in_degree(node) + G.out_degree(node))
+    neighbors = [node for node in G.nodes() if node != center]
+    neighbors.sort(key=lambda node: (partition.get(node, 0), node))
+
+    pos = {center: (0.0, 0.0)}
+    ring_capacity = 18
+
+    for index, node in enumerate(neighbors):
+        ring = index // ring_capacity
+        ring_index = index % ring_capacity
+        nodes_in_ring = min(ring_capacity, len(neighbors) - ring * ring_capacity)
+        angle = (2 * pi * ring_index / nodes_in_ring) + (ring * pi / ring_capacity)
+        radius = 3.2 + ring * 2.1
+        pos[node] = (radius * cos(angle), radius * sin(angle))
+
+    return pos
