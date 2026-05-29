@@ -3,7 +3,7 @@ from numpy import partition
 from graph.loader import load_cross_references
 from graph.builder import build_graph
 from graph.community import detect_communities, community_summary
-from graph.metrics import compute_pagerank, top_in_degree, top_weighted_in_degree, top_pagerank
+from graph.metrics import compute_pagerank, top_in_degree, top_weighted_in_degree, top_pagerank, compute_betweenness
 from collections import defaultdict
 
 
@@ -55,7 +55,11 @@ def main():
     for verse, score in sorted(pagerank_scores.items(), key=lambda x: x[1], reverse=True)[:10]:
         print(f"{verse}: {score:.6f}")
 
-
+    print("\nCalculando Betweenness Centrality (k=200)...")
+    top_betweenness = compute_betweenness(graph_data, n=10, k=200)
+    print('\n Top 10 Betweenness Centrality:')
+    for verse, score in top_betweenness:
+       print(f"{verse}: {score:.8f}")
 
 
 if __name__ == '__main__':
