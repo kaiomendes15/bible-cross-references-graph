@@ -6,26 +6,26 @@ import networkx as nx
 from math import sqrt
 
 HIGH_CONTRAST_COLORS = [
-    "#1f77b4",  # blue
-    "#d62728",  # red
-    "#2ca02c",  # green
-    "#9467bd",  # purple
-    "#ff7f0e",  # orange
-    "#17becf",  # cyan
-    "#bcbd22",  # olive
-    "#e377c2",  # pink
-    "#8c564b",  # brown
-    "#7f7f7f",  # gray
-    "#003f5c",
-    "#ffa600",
-    "#58508d",
-    "#ff6361",
-    "#00a676",
-    "#6a4c93",
-    "#1982c4",
-    "#ffca3a",
-    "#8ac926",
-    "#c1121f",
+    "#4E79A7",  # blue
+    "#F28E2B",  # orange
+    "#59A14F",  # green
+    "#E15759",  # red
+    "#76B7B2",  # teal
+    "#EDC948",  # yellow
+    "#B07AA1",  # purple
+    "#FF9DA7",  # pink
+    "#9C755F",  # brown
+    "#BAB0AC",  # gray
+    "#86BCB6",
+    "#F1CE63",
+    "#8CD17D",
+    "#D4A6C8",
+    "#FFBE7D",
+    "#A0CBE8",
+    "#FFB5A7",
+    "#CFCFCF",
+    "#B6992D",
+    "#F4A261",
 ]
 
 
@@ -144,7 +144,7 @@ def _community_colormap(partition: dict[str, int]):
     if max_community_id < len(HIGH_CONTRAST_COLORS):
         return mcolors.ListedColormap(HIGH_CONTRAST_COLORS[: max_community_id + 1])
 
-    return cm.get_cmap("nipy_spectral", max_community_id + 1)
+    return cm.get_cmap("Set3", max_community_id + 1)
 
 
 def _repulsion_k(G: nx.DiGraph, multiplier: float) -> float:
