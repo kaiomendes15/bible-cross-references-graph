@@ -117,6 +117,69 @@ def plot_overview(
     plt.close()
 
 
+def plot_community_top_pagerank(
+    graph: dict[str, list[tuple[str, int]]],
+    top_nodes: list[str],
+    partition: dict[str, int],
+    community_id: int,
+    output_path: str,
+) -> None:
+    top_node_set = set(top_nodes)
+    subgraph = {}
+
+    for from_verse in top_nodes:
+        edges = [
+            (to_verse, votes)
+            for to_verse, votes in graph.get(from_verse, [])
+            if to_verse in top_node_set
+        ]
+        subgraph[from_verse] = edges
+
+    G = subdict_to_digraph(subgraph)
+    pos = nx.spring_layout(
+        G,
+        seed=42,
+        k=_repulsion_k(G, multiplier=6.0),
+        iterations=300,
+        weight=None,
+    )
+
+    node_list, colors = _node_colors(G, partition)
+
+    plt.figure(figsize=(24, 12))
+    nx.draw_networkx(
+        G,
+        pos,
+        nodelist=node_list,
+        node_color=colors,
+        node_size=220,
+        font_size=6,
+        arrows=True,
+        arrowsize=9,
+        edge_color="#BBBBBB",
+        width=0.7,
+    )
+    colormap = _community_colormap(partition)
+    handles = [
+        mpatches.Patch(
+            color=colormap(community_id),
+            label=f"Community {community_id}",
+        )
+    ]
+    plt.legend(
+        handles=handles,
+        title="Communities",
+        loc="upper left",
+        bbox_to_anchor=(1.02, 1),
+        borderaxespad=0,
+        fontsize=8,
+        title_fontsize=9,
+    )
+    plt.axis("off")
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+
+
 def _node_colors(G: nx.DiGraph, partition: dict[str, int]) -> tuple[list[str], list]:
     node_list = list(G.nodes())
     colormap = _community_colormap(partition)

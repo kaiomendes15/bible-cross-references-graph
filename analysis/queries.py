@@ -1,4 +1,36 @@
+import heapq
 from collections import deque
+
+from utils.weight_utils import invert_weight
+
+
+def shortest_path(graph: dict, source: str, target: str) -> dict:
+    heap = [(0.0, source, [source])]
+    visited = set()
+
+    while heap:
+        cost, node, path = heapq.heappop(heap)
+
+        if node == target:
+            return {
+                "path": path,
+                "cost": cost,
+                "hops": len(path) - 1,
+            }
+
+        if node in visited:
+            continue
+
+        visited.add(node)
+
+        for neighbor, votes in graph.get(node, []):
+            if neighbor not in visited:
+                heapq.heappush(
+                    heap,
+                    (cost + invert_weight(votes), neighbor, path + [neighbor]),
+                )
+
+    raise ValueError(f"No path found between {source} and {target}.")
 
 def ego_graph(
     graph: dict[str, list[tuple[str, int]]],
