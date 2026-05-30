@@ -4,7 +4,18 @@ from collections import deque
 from utils.weight_utils import invert_weight
 
 
-def shortest_path(graph: dict, source: str, target: str) -> dict:
+def shortest_path(
+    graph: dict[str, list[tuple[str, int]]],
+    source: str,
+    target: str,
+) -> dict:
+    """Dijkstra com min-heap sobre os custos invertidos (1 / votes).
+
+    Retorna o caminho de menor custo entre `source` e `target`:
+        {"path": [...], "cost": float, "hops": int}
+
+    Levanta ValueError se não houver caminho entre os dois versículos.
+    """
     heap = [(0.0, source, [source])]
     visited = set()
 
@@ -12,25 +23,19 @@ def shortest_path(graph: dict, source: str, target: str) -> dict:
         cost, node, path = heapq.heappop(heap)
 
         if node == target:
-            return {
-                "path": path,
-                "cost": cost,
-                "hops": len(path) - 1,
-            }
+            return {"path": path, "cost": cost, "hops": len(path) - 1}
 
         if node in visited:
             continue
-
         visited.add(node)
 
         for neighbor, votes in graph.get(node, []):
             if neighbor not in visited:
-                heapq.heappush(
-                    heap,
-                    (cost + invert_weight(votes), neighbor, path + [neighbor]),
-                )
+                new_cost = cost + invert_weight(votes)
+                heapq.heappush(heap, (new_cost, neighbor, path + [neighbor]))
 
-    raise ValueError(f"No path found between {source} and {target}.")
+    raise ValueError(f"Não há caminho entre {source} e {target}.")
+
 
 def ego_graph(
     graph: dict[str, list[tuple[str, int]]],
