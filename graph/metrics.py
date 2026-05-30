@@ -72,7 +72,7 @@ def compute_betweenness(graph: dict, n: int, k:int = 200) -> list[tuple[str,floa
         for to_verse, _ in neighbors:
             all_nodes.add(to_verse)
 
-    all_nodes = list(all_nodes)
+    all_nodes = sorted(all_nodes)
     N = len(all_nodes)
     betweenness = defaultdict(float)
 
