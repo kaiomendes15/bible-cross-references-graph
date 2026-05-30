@@ -26,12 +26,12 @@ def main():
     for verse, community_id in partition.items():
       communities[community_id].append(verse)
 
-    community_id = 0
+    community_id = 19
 
     print(f"10 itens da Comunidade {community_id}:")
     print(f"Total de versículos: {len(communities[community_id])}")
 
-    for verse in sorted(communities[community_id])[:10]:
+    for verse in sorted(communities[community_id])[:50]:
       print(verse)
     summary = community_summary(partition)
 
