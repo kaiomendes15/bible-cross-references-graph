@@ -348,7 +348,6 @@ python main.py
 pandas
 networkx
 matplotlib
-python-louvain
 ```
 
 ---
